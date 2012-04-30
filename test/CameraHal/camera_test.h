@@ -420,7 +420,9 @@ public:
                     printf ("=== handling buffer %d\n", defer.count);
                     mBST->handleBuffer(defer.graphicBuffer, defer.mappedBuffer, defer.count);
                     defer.graphicBuffer->unlock();
+                    mBST->releaseBuffer(defer.graphicBuffer);
                     mDeferQueue.removeAt(0);
+                    printf(" handle buffer done\n");
                     return true;
                 }
                 return false;
@@ -478,7 +480,7 @@ public:
             printf("=== Metadata for buffer %d ===\n", mCounter);
             showMetadata(mSurfaceTexture->getMetadata());
             printf("\n");
-            graphic_buffer = mSurfaceTexture->getCurrentBuffer();
+            graphic_buffer = mSurfaceTexture->takeCurrentBuffer();
             mDeferThread->add(graphic_buffer, mCounter++);
             Mutex::Autolock lock(mToggleStateMutex);
             if (mRestartCapture) {
@@ -508,6 +510,10 @@ public:
         mExpBracketIdx = expBracketIdx;
         mRestartCapture = !mRestartCapture;
         return mRestartCapture;
+    }
+
+    void releaseBuffer(sp<GraphicBuffer> &graphic_buffer) {
+        mSurfaceTexture->releaseBuffer(graphic_buffer);
     }
 
     buffer_info_t popBuffer() {
