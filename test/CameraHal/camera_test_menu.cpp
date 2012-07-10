@@ -3050,8 +3050,11 @@ int functional_menu() {
 
             params.set(KEY_MODE, (modevalues[capture_mode]));
 
-            if ( hardwareActive )
+            if ( hardwareActive ) {
                 camera->setParameters(params.flatten());
+                params = camera->getParameters();
+                getSizeParametersFromCapabilities();
+            }
 
             break;
 
