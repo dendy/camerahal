@@ -204,7 +204,6 @@ status_t OMXCameraAdapter::initialize(CameraProperties::Properties* caps)
     mReprocConfigured = false;
     mRecording = false;
     mWaitingForSnapshot = false;
-    mSnapshotCount = 0;
     mPictureFormatFromClient = NULL;
 
     mCapabilitiesOpMode = MODE_MAX;
@@ -3480,17 +3479,15 @@ OMX_ERRORTYPE OMXCameraAdapter::OMXCameraAdapterFillBufferDone(OMX_IN OMX_HANDLE
         //CAMHAL_LOGV("FBD pBuffer = 0x%x", pBuffHeader->pBuffer);
 
         if( mWaitingForSnapshot )
-          {
-            mSnapshotCount++;
-
-            if ( (mSnapshotCount == 1) &&
+            {
+            if ( !mBracketingEnabled &&
                  ((HIGH_SPEED == mCapMode) ||
                   (VIDEO_MODE == mCapMode) ||
                   (VIDEO_MODE_HQ == mCapMode)) )
-              {
-                notifyShutterSubscribers();
-              }
-          }
+                {
+                    notifyShutterSubscribers();
+                }
+            }
 
         stat = sendCallBacks(cameraFrame, pBuffHeader, mask, pPortParam);
         mFramesWithDisplay++;
